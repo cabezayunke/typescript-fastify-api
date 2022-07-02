@@ -4,23 +4,26 @@ import { UserRepository } from "./UserRepository";
 
 @Service()
 export class MongoUserRepository extends UserRepository {
-    async find(criteria:  Record<string, unknown>): Promise<UserDto & { id: string; }[]> {
+    async find(criteria:  Record<string, unknown>): Promise<UserDto[]> {
         const { id, ...rest } = criteria
         if (id) {
-            return User.find({_id: id }).lean();
+            return User.findById(id).lean({virtuals: true});
         }
-        return User.find(rest).lean();
+        return User.find(rest).lean({virtuals: true});
     }
 
-    async remove(key: string): Promise<void> {
-        await User.remove({ _id: key }).lean();
+    async remove(key: string): Promise<string> {
+        await User.remove({ _id: key });
+        return key;
     }
 
-    async save(data: UserDto & { id: string; }): Promise<void> {
+    async save(data: UserDto): Promise<string> {
         if (data.id) {
-            await User.updateOne(data)
+            await User.updateOne(data);
+            return data.id;
         } else;{
-            await User.create(data)
+            const user = await User.create(data);
+            return user._id.toString();
         }
     }
 

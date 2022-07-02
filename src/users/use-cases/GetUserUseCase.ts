@@ -18,9 +18,10 @@ export class GetUserUseCase {
     
       async execute({ userId }: GetUserInput): Promise<GetUserOutput> {
         const found = await this.userRepository.find({id: userId });
-        if (!found || !found.length) {
+        const isArrayResult = Array.isArray(found);
+        if (!found || (isArrayResult && !found.length)) {
           throw ApiError.notFound('User not found', { userId })
         }
-        return found[0] as GetUserOutput;
+        return isArrayResult ? found[0] as GetUserOutput : found;
       }
 }

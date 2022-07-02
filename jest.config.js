@@ -12,7 +12,4 @@ module.exports = {
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
-  // testMatch: [
-  //   "**/test/*.+(ts|tsx|js)"
-  // ]
 };
