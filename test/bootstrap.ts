@@ -1,8 +1,8 @@
-import { buildApp } from "../src/app";
+import { buildFastifyApp } from "../src/shared";
 
-const testApp = buildApp({
+const testApp = buildFastifyApp({
     logger: true,
-    withSwagger: false,
+    swagger: { enabled: false },
 });
 
 const fakeAuthHeader = { 'authorization': 'Bearer fakeToken'}

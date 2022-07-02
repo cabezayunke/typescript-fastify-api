@@ -1,11 +1,11 @@
-import { AuthenticatedRequest } from "../../shared/controller/AuthenticatedRequest";
 import { FromSchema } from 'json-schema-to-ts';
 import { FastifyInstance } from "fastify";
-import { AuthHeadersSchema } from "../../shared/controller/CommonHeaders";
 import { UserResponseSchema, UserResponseType } from "./UserResponse";
-import { ErrorResponseSchema } from "../../shared/controller/CommonResponses";
+import { ErrorResponseSchema, AuthHeadersSchema, AuthenticatedRequest } from "../../shared";
+import { GetUserUseCase } from '../use-cases/GetUserUseCase';
+import { container } from '../index';
 
-const GetUserParams =  {
+export const GetUserParams =  {
     type: "object",
     properties: {
       userId: { type: "string" },
@@ -35,13 +35,8 @@ export default async (app: FastifyInstance): Promise<void> => {
     },
     async (request, response) => {
       const { userId } = request.params;
-      const userResponse: UserResponseType = {
-        id: userId,
-        name: "John",
-        email: "john@whatver.com",
-      };
-
-      response.status(200).send(userResponse);
+      const data = await container.get(GetUserUseCase).execute({ userId });
+      response.status(200).send(data as UserResponseType);
     }
   );
 }

@@ -1,4 +1,4 @@
-import { getRequest } from '../bootstrap'
+import { getRequest } from '../../bootstrap'
 
 describe('getUser', () => {
 
@@ -9,6 +9,6 @@ describe('getUser', () => {
         const response = await getRequest('/v1/users/pepito')
 
         //assert
-        expect(JSON.parse(response.body).id).toEqual('pepito')
+        expect(response.statusCode).toEqual(404)
     });
 });

@@ -1,17 +1,20 @@
 import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import fastifySwagger from "@fastify/swagger";
-import UserRoutes from "./users";
-import { serverConfig } from "./config";
+import { handleError } from "./FastifyErrorHandler";
 
-interface AppParams extends FastifyServerOptions {
-  withSwagger?: boolean;
+export interface AppParams extends FastifyServerOptions {
+  swagger?: {
+    enabled: boolean;
+    tags?: [{ name: string, description: string}];
+    host?: string;
+  }  
 }
 
 export const buildApp = (opts: AppParams = {}): FastifyInstance => {
-  const { withSwagger, ...fastifyOpts } = opts;
+  const { swagger, ...fastifyOpts } = opts;
   const app = fastify(fastifyOpts);
 
-  if (withSwagger) {
+  if (swagger && swagger.enabled) {
     app.register(fastifySwagger, {
         routePrefix: '/docs',
         swagger: {
@@ -20,23 +23,19 @@ export const buildApp = (opts: AppParams = {}): FastifyInstance => {
             description: 'Testing the Fastify swagger API',
             version: '1.0.0'
           },
-          host: 'localhost',
+          host: swagger.host,
           schemes: ['http'],
           consumes: ['application/json'],
           produces: ['application/json'],
-          tags: [
-            { name: 'user', description: 'User related end-points' },
-          ],
+          tags: swagger.tags,
           definitions: {}
         },
         exposeRoute: true
     });
   }
 
-  /*
-   * Routes
-   */
-  app.register(UserRoutes, { prefix: '/v1/users' })
+  // error handling
+  app.setErrorHandler(handleError)
 
   return app;
 };
@@ -45,9 +44,10 @@ export const buildApp = (opts: AppParams = {}): FastifyInstance => {
 /**
  * Run the server!
  */
- export const start = async (app: FastifyInstance) => {
+ export const start = async (app: FastifyInstance, port: number, host: string) => {
     try {
-        const server = await app.listen({ port: serverConfig.port, host: serverConfig.host })
+        console.log(`Server running on ${host}:${port}`, { tags: 'init,server' });
+        const server = await app.listen({ port, host })
         return server;
     } catch (err) {
         app.log.error(err)

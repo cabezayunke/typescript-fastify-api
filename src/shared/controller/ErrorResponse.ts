@@ -3,10 +3,9 @@ export const ErrorResponseSchema = {
     type: "object",
     description: 'Error response',
     properties: {
-      statusCode: { type: "string" },
-      error: { type: "string" },
+      statusCode: { type: "number" },
+      extra: { type: "object" },
       message: { type: "string" },
     },
-    required: ["statusCode", "error", "message"],
+    required: ["message"],
   } as const;
-
